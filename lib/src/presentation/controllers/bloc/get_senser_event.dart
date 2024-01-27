@@ -8,3 +8,13 @@ sealed class GetSenserEvent extends Equatable {
 }
 
 final class InitGetSenserEvent extends GetSenserEvent {}
+
+final class ChangeNameSensorEvent extends GetSenserEvent {
+  final String newName;
+  final int index;
+
+  const ChangeNameSensorEvent({
+    required this.newName,
+    required this.index,
+  });
+}
