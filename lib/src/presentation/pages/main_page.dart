@@ -15,20 +15,15 @@ class MainPage extends StatelessWidget {
         bloc: services<GetSenserBloc>(),
         builder: (context, state) {
           switch (state) {
-            case GetSenserInitial():
+            case InitialGetSenser():
               return const InitialHomeWidget();
-            case GetSenser():
-              final GetSenser getSenserState = state;
+            case SensorModelGetSenser():
+              final SensorModelGetSenser getSenserState = state;
               return HomePage(
-                listSensorModel: getSenserState.listSensorModel,
-                itemCount: getSenserState.itemCount,
-                expandableState: getSenserState.expandableState,
-                bloc: getSenserState,
-                textEditingControllers: getSenserState.textEditingControllers,
-                isEditingStates: getSenserState.isEditingStates,
+                listSensorInfo: getSenserState.listSensorInfo,
               );
-            case GetSenserError():
-              final GetSenserError getSenserError = state;
+            case ErrorGetSenser():
+              final ErrorGetSenser getSenserError = state;
               return AboutDialog(
                 applicationName: getSenserError.errorStr,
               );
