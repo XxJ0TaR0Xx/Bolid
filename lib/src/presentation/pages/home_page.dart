@@ -1,25 +1,18 @@
+import 'package:bolid/core/services.dart';
+import 'package:bolid/core/utils/validate.dart';
 import 'package:bolid/src/domain/repositories/sensor_repository.dart';
 import 'package:bolid/src/presentation/controllers/bloc/get_senser_bloc.dart';
 import 'package:bolid/src/presentation/utils/change_status_code.dart';
 import 'package:bolid/src/presentation/widget/list_text_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomePage extends StatefulWidget {
-  final List<SensorModel> listSensorModel;
-  final List<TextEditingController> textEditingControllers;
-  final List<bool> expandableState;
-  final List<bool> isEditingStates;
-  final int itemCount;
-  final GetSenser bloc;
+  final List<SensorInfo> listSensorInfo;
 
   const HomePage({
     super.key,
-    required this.listSensorModel,
-    required this.itemCount,
-    required this.expandableState,
-    required this.bloc,
-    required this.textEditingControllers,
-    required this.isEditingStates,
+    required this.listSensorInfo,
   });
 
   @override
@@ -28,44 +21,56 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Widget expandedContainer(double width, int index) {
-    SensorModel sensorModel = widget.listSensorModel[index];
+    SensorModel sensorModel = widget.listSensorInfo[index].model;
     StatusCode statusCode = StatusCodeParser.toStatusCode(sensorModel.status);
-    List<bool> isEditingStates0 = widget.isEditingStates;
-    bool isExpanded = widget.expandableState[index];
+    bool isEditingStates0 = widget.listSensorInfo[index].isEditingStates;
+    bool isExpanded = widget.listSensorInfo[index].expandableState;
+    TextEditingController textEditingController = widget.listSensorInfo[index].textEditingController;
 
     Duration duration = const Duration(milliseconds: 300);
     double smallContainerWidth = width * 0.4;
     double bigContainerWidth = width * 0.9;
 
-    Widget renameName(bool isEditText) {
+    Widget renameName(bool isEditText, double width) {
       if (isEditText) {
         return Expanded(
-          flex: 8,
-          child: TextFormField(
-            cursorColor: Colors.black,
-            controller: widget.textEditingControllers[index],
-            onChanged: (value) {
-              widget.bloc.updateName(value, index);
-            },
-            style: styleText(size: 30.0),
-            decoration: const InputDecoration(
-              border: InputBorder.none,
-              hintText: 'Введите имя',
-            ),
-          ),
-        );
+            flex: 8,
+            child: TextFormField(
+              maxLength: null,
+              cursorColor: Colors.black,
+              controller: textEditingController,
+              onChanged: (value) {
+                final bool valid = validate(
+                  textEditingController.text,
+                  r'^[a-zA-Zа-яА-ЯёЁ0-9-_\.\s]{1,20}$',
+                );
+
+                if (valid) {
+                  services<GetSenserBloc>().add(
+                    ChangeNameSensorEvent(
+                      index: index,
+                      newName: value,
+                    ),
+                  );
+                }
+              },
+              style: styleText(size: 30.0),
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Введите имя',
+              ),
+            ));
       } else {
-        return Expanded(
-          flex: 8,
-          child: ValueListenableBuilder(
-            valueListenable: widget.bloc.valueNotifier,
-            builder: (context, value, child) {
-              return Text(
+        return BlocBuilder<GetSenserBloc, GetSenserState>(
+          builder: (context, state) {
+            return Expanded(
+              flex: 8,
+              child: Text(
                 'Имя - ${sensorModel.name != '' ? sensorModel.name : "N/A"}',
                 overflow: TextOverflow.ellipsis,
-              );
-            },
-          ),
+              ),
+            );
+          },
         );
       }
     }
@@ -83,7 +88,7 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               setState(() {
-                isEditingStates0[index] = !isEditingStates0[index];
+                widget.listSensorInfo[index].isEditingStates = !isEditingStates0;
               });
             },
           ),
@@ -94,7 +99,7 @@ class _HomePageState extends State<HomePage> {
     return GestureDetector(
       onTap: () {
         setState(() {
-          widget.expandableState[index] = !isExpanded;
+          widget.listSensorInfo[index].expandableState = !isExpanded;
         });
       },
       child: AnimatedContainer(
@@ -124,7 +129,7 @@ class _HomePageState extends State<HomePage> {
                   style: !isExpanded ? styleText(size: 20.0) : styleText(size: 30.0),
                   child: Row(
                     children: [
-                      renameName(isEditingStates0[index]),
+                      renameName(isEditingStates0, width),
                       const Spacer(),
                       buildEditIconButton(index),
                     ],
@@ -171,25 +176,23 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text('НВП Болид Mobile'),
-        backgroundColor: Colors.grey,
-      ),
-      body: Align(
-        child: SingleChildScrollView(
-          child: Wrap(
-            children: List.generate(widget.itemCount, (index) {
-              return expandedContainer(
-                width,
-                index,
-              );
-            }),
-          ),
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text('НВП Болид Mobile'),
+          backgroundColor: Colors.grey,
         ),
-      ),
-    );
+        body: Align(
+          child: SingleChildScrollView(
+            child: Wrap(
+              children: List.generate(widget.listSensorInfo.length, (index) {
+                return expandedContainer(
+                  width,
+                  index,
+                );
+              }),
+            ),
+          ),
+        ));
   }
 }
