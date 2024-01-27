@@ -8,7 +8,9 @@ part 'sensor_repository.g.dart';
 abstract class SensorRepositorty {
   factory SensorRepositorty(Dio dio, {String baseUrl}) = _SensorRepositorty;
 
-  @GET('/216de177-6269-4124-912b-88f16b5e3e0f/8f9a9f95-18b6-4da6-a01f-eded120a92be/events.json?id=01f43ab4-22ed-496b-b7de-86c25b39cd48&table=block&spaceId=216de177-6269-4124-912b-88f16b5e3e0f&expirationTimestamp=1705953600000&signature=UlcrmwuCgKtT4-lQCQYhIwSuTFHT1JCk_YD7NV8F_GA&downloadName=events.json')
+  @GET(
+    '/216de177-6269-4124-912b-88f16b5e3e0f/8f9a9f95-18b6-4da6-a01f-eded120a92be/events.json?id=01f43ab4-22ed-496b-b7de-86c25b39cd48&table=block&spaceId=216de177-6269-4124-912b-88f16b5e3e0f&expirationTimestamp=1706371200000&signature=wazfloF1HPqOPwIN71GQZ_2LBEAOnR4053QqqRosHTU&downloadName=events.json',
+  )
   Future<List<SensorModel>> getSensorModels();
 }
 
