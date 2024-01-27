@@ -7,36 +7,33 @@ sealed class GetSenserState extends Equatable {
   List<Object> get props => [];
 }
 
-final class GetSenserInitial extends GetSenserState {}
+final class InitialGetSenser extends GetSenserState {}
 
-final class GetSenser extends GetSenserState {
-  final ValueNotifier<String> valueNotifier = ValueNotifier<String>('');
-  final List<TextEditingController> textEditingControllers;
-  final List<bool> isEditingStates;
-  final List<SensorModel> listSensorModel;
-  final List<bool> expandableState;
-  final int itemCount;
+final class SensorModelGetSenser extends GetSenserState {
+  final List<SensorInfo> listSensorInfo;
 
-  GetSenser({
-    required this.listSensorModel,
-    required this.expandableState,
-    required this.itemCount,
-    required this.textEditingControllers,
-    required this.isEditingStates,
+  const SensorModelGetSenser({
+    required this.listSensorInfo,
   });
-
-  void updateName(
-    String newName,
-    int index,
-  ) {
-    listSensorModel[index] = listSensorModel[index].copyWith(name: newName);
-  }
 }
 
-final class GetSenserError extends GetSenserState {
+class SensorInfo {
+  TextEditingController textEditingController;
+  bool isEditingStates;
+  SensorModel model;
+  bool expandableState;
+  SensorInfo({
+    required this.textEditingController,
+    required this.isEditingStates,
+    required this.model,
+    required this.expandableState,
+  });
+}
+
+final class ErrorGetSenser extends GetSenserState {
   final String errorStr;
 
-  const GetSenserError({
+  const ErrorGetSenser({
     required this.errorStr,
   });
 }
